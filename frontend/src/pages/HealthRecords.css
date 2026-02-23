@@ -1,0 +1,35 @@
+/* Records Layout */
+.records-layout {
+    min-height: 100vh;
+}
+
+/* Header Styling */
+.records-header {
+    background: #1890ff;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0 24px;
+}
+
+.records-header h2 {
+    color: white;
+    margin: 0;
+}
+
+.header-buttons {
+    display: flex;
+    align-items: center;
+}
+
+/* Content Area */
+.records-content {
+    padding: 24px;
+    background: #f0f2f5;
+    min-height: calc(100vh - 64px);
+}
+
+/* Records Card */
+.records-card {
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}

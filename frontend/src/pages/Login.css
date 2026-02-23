@@ -1,0 +1,31 @@
+/* Center the login form on the page */
+.login-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+}
+
+/* Style the login card */
+.login-card {
+  width: 400px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  border-radius: 8px;
+}
+
+.login-card h2 {
+  text-align: center;
+  margin-bottom: 24px;
+  color: #333;
+}
+
+/* Make links clickable */
+.login-card a {
+  color: #1890ff;
+  cursor: pointer;
+}
+
+.login-card a:hover {
+  text-decoration: underline;
+}
