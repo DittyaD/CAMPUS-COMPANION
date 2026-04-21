@@ -1,0 +1,29 @@
+.patients-layout {
+    min-height: 100vh;
+    background: #f0f2f5;
+}
+
+.patients-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: #001529;
+    padding: 0 24px;
+    color: white;
+}
+
+.patients-header h2 {
+    color: white;
+    margin: 0;
+}
+
+.patients-content {
+    padding: 24px;
+}
+
+.header-buttons {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 6px;
+}

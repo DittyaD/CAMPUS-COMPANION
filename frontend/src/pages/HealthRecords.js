@@ -1,120 +1,87 @@
 import React, { useState, useEffect } from 'react';
-import { Table, Button, Layout, Card } from 'antd';
-import { useNavigate } from 'react-router-dom';
-import './HealthRecords.css';
+import AppLayout from '../components/AppLayout';
+import api from '../services/api';
 
-const { Header, Content } = Layout;
+const MOOD_BADGE = { Happy: 'badge-green', Calm: 'badge-cyan', Neutral: 'badge-blue', Anxious: 'badge-orange', Sad: 'badge-orange', Stressed: 'badge-red', Angry: 'badge-red' };
+const STRESS_BADGE = { Low: 'badge-green', Medium: 'badge-yellow', High: 'badge-orange', 'Very High': 'badge-red' };
 
 function HealthRecords() {
-    const navigate = useNavigate();
     const [records, setRecords] = useState([]);
     const [loading, setLoading] = useState(false);
+    const patientId = parseInt(localStorage.getItem('patient_id') || '1');
 
-    // This runs when the page loads
-    useEffect(() => {
-        fetchRecords();
-    }, []);
+    const role = localStorage.getItem('role') || 'user';
 
-    // Function to get health records from backend
+    useEffect(() => { fetchRecords(); }, []); // eslint-disable-line
+
     const fetchRecords = async () => {
         setLoading(true);
-
         try {
-            // TODO: Later we'll connect this to backend API
-            // For now, use dummy data to show how the table looks
-            const dummyData = [
-                {
-                    key: '1',
-                    date: '2026-01-18',
-                    mood: 'Happy',
-                    sleepHours: 7.5,
-                },
-                {
-                    key: '2',
-                    date: '2026-01-17',
-                    mood: 'Stressed',
-                    sleepHours: 5.0,
-                },
-                {
-                    key: '3',
-                    date: '2026-01-16',
-                    mood: 'Very Happy',
-                    sleepHours: 8.0,
-                },
-            ];
-
-            // Simulate API call delay
-            setTimeout(() => {
-                setRecords(dummyData);
-                setLoading(false);
-            }, 500);
-
-        } catch (error) {
-            console.error('Failed to fetch records:', error);
-            setLoading(false);
-        }
+            const res = await api.getWellness(patientId);
+            if (res.success) setRecords(res.data);
+        } catch { /* ignore */ } finally { setLoading(false); }
     };
 
-    // Define table columns
-    const columns = [
-        {
-            title: 'Date',
-            dataIndex: 'date',
-            key: 'date',
-            sorter: (a, b) => new Date(a.date) - new Date(b.date),
-        },
-        {
-            title: 'Mood',
-            dataIndex: 'mood',
-            key: 'mood',
-            filters: [
-                { text: 'Very Happy', value: 'Very Happy' },
-                { text: 'Happy', value: 'Happy' },
-                { text: 'Neutral', value: 'Neutral' },
-                { text: 'Sad', value: 'Sad' },
-                { text: 'Very Sad', value: 'Very Sad' },
-                { text: 'Stressed', value: 'Stressed' },
-                { text: 'Anxious', value: 'Anxious' },
-            ],
-            onFilter: (value, record) => record.mood === value,
-        },
-        {
-            title: 'Sleep Hours',
-            dataIndex: 'sleepHours',
-            key: 'sleepHours',
-            sorter: (a, b) => a.sleepHours - b.sleepHours,
-            render: (hours) => `${hours} hours`,
-        },
-    ];
+    const avgSleep = records.length
+        ? (records.reduce((s, r) => s + (r.sleep_hours || 0), 0) / records.length).toFixed(1)
+        : '—';
+    const avgSteps = records.length
+        ? Math.round(records.reduce((s, r) => s + (r.steps_count || 0), 0) / records.length)
+        : '—';
 
     return (
-        <Layout className="records-layout">
-            <Header className="records-header">
-                <h2>My Health Records</h2>
-                <div className="header-buttons">
-                    <Button onClick={() => navigate('/dashboard')} style={{ marginRight: '10px' }}>
-                        Back to Dashboard
-                    </Button>
-                    <Button onClick={() => navigate('/health-tips')} style={{ marginRight: '10px' }}>
-                        Health Tips
-                    </Button>
-                    <Button onClick={() => navigate('/')} danger>
-                        Logout
-                    </Button>
-                </div>
-            </Header>
+        <AppLayout title={role === 'admin' ? "Patient Health Records" : "My Health Records"}>
+            <div className="page-header">
+                <h1>Wellness Records &mdash; Patient #{patientId}</h1>
+                <p>Daily health tracking history.</p>
+            </div>
 
-            <Content className="records-content">
-                <Card className="records-card">
-                    <Table
-                        columns={columns}
-                        dataSource={records}
-                        loading={loading}
-                        pagination={{ pageSize: 10 }}
-                    />
-                </Card>
-            </Content>
-        </Layout>
+            <div className="stat-grid" style={{ gridTemplateColumns: 'repeat(3, 1fr)', marginBottom: 20 }}>
+                <div className="stat-card"><div className="stat-icon blue" /><div><div className="stat-value">{records.length}</div><div className="stat-label">Total Entries</div></div></div>
+                <div className="stat-card"><div className="stat-icon purple" /><div><div className="stat-value">{avgSleep}</div><div className="stat-label">Avg. Sleep (hrs)</div></div></div>
+                <div className="stat-card"><div className="stat-icon green" /><div><div className="stat-value">{typeof avgSteps === 'number' ? avgSteps.toLocaleString() : '—'}</div><div className="stat-label">Avg. Steps</div></div></div>
+            </div>
+
+            <div className="card">
+                <div className="card-header">
+                    <h3 className="card-title">Wellness Log</h3>
+                    <button className="btn btn-ghost btn-sm" onClick={fetchRecords}>Refresh</button>
+                </div>
+                <div style={{ overflowX: 'auto' }}>
+                    {loading ? (
+                        <div className="empty-state"><p>Loading records...</p></div>
+                    ) : records.length === 0 ? (
+                        <div className="empty-state">
+                            <h3>No Records Yet</h3>
+                            <p>Start logging health data from the Dashboard.</p>
+                        </div>
+                    ) : (
+                        <table className="data-table">
+                            <thead>
+                                <tr>
+                                    <th>Date</th><th>Mood</th><th>Stress</th><th>Sleep (hrs)</th>
+                                    <th>Water (L)</th><th>Activity (min)</th><th>Steps</th><th>Calories</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {records.map((r, i) => (
+                                    <tr key={i}>
+                                        <td>{r.tracker_date || '—'}</td>
+                                        <td><span className={`badge ${MOOD_BADGE[r.mood] || 'badge-gray'}`}>{r.mood || '—'}</span></td>
+                                        <td><span className={`badge ${STRESS_BADGE[r.stress_level] || 'badge-gray'}`}>{r.stress_level || '—'}</span></td>
+                                        <td>{r.sleep_hours != null ? `${r.sleep_hours} hrs` : '—'}</td>
+                                        <td>{r.water_intake_liters != null ? `${r.water_intake_liters} L` : '—'}</td>
+                                        <td>{r.physical_activity_minutes != null ? `${r.physical_activity_minutes} min` : '—'}</td>
+                                        <td>{r.steps_count != null ? r.steps_count.toLocaleString() : '—'}</td>
+                                        <td>{r.calories_intake != null ? r.calories_intake.toLocaleString() : '—'}</td>
+                                    </tr>
+                                ))}
+                            </tbody>
+                        </table>
+                    )}
+                </div>
+            </div>
+        </AppLayout>
     );
 }
 

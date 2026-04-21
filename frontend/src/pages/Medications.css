@@ -1,0 +1,29 @@
+.medications-layout {
+    min-height: 100vh;
+    background: #f0f2f5;
+}
+
+.medications-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: #001529;
+    padding: 0 24px;
+    color: white;
+}
+
+.medications-header h2 {
+    color: white;
+    margin: 0;
+}
+
+.medications-content {
+    padding: 24px;
+}
+
+.header-buttons {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 6px;
+}

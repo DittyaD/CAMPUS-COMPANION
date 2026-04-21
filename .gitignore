@@ -1,0 +1,12 @@
+node_modules/
+__pycache__/
+*.pyc
+*.pyo
+venv/
+.env
+.venv/
+npm_error.log
+frontend/npm_error.log
+.vscode/
+.idea/
+.DS_Store
